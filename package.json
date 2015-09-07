@@ -29,7 +29,7 @@
   "dependencies": {
     "babel-runtime": "5.8.20",
     "fbjs": "^0.2.0",
-    "react-static-container": "^1.0.0-alpha.1"
+    "react-static-container": "https://github.com/tmitchel2/react-static-container/tarball/master"
   },
   "peerDependencies": {
     "react-native": "^0.10.1"
@@ -51,7 +51,7 @@
     "gulp-util": "^3.0.6",
     "jest-cli": "^0.5.0",
     "object-assign": "^3.0.0",
-    "react": "^0.14.0-beta3",
+    "react-native": "^0.10.1",
     "run-sequence": "^1.1.2",
     "webpack": "1.11.0",
     "webpack-stream": "^2.1.0"
