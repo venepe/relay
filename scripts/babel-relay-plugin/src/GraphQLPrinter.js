@@ -2,9 +2,15 @@
 "use strict";
 
 var kinds = require('graphql/language/kinds');
+var printer = require('graphql/language/printer');
 var types = require('graphql/type');
+var typeIntrospection = require('graphql/type/introspection');
 
 var util = require('util');
+
+var SchemaMetaFieldDef = typeIntrospection.SchemaMetaFieldDef;
+var TypeMetaFieldDef = typeIntrospection.TypeMetaFieldDef;
+var TypeNameMetaFieldDef = typeIntrospection.TypeNameMetaFieldDef;
 
 /**
  * This is part of the Babel transform to convert embedded GraphQL RFC to
@@ -96,13 +102,17 @@ function getFragmentCode(fragment, options) {
 function printQuery(query, options) {
   var selections = getSelections(query);
   if (selections.length !== 1) {
-    throw new Error('expected only single top level query');
+    throw new Error('Expected only single top level query');
   }
 
   // Validate the name of the root call. Throws if it doesn't exist.
   var rootField = selections[0];
   var rootCallName = getName(rootField);
-  var rootCallDecl = options.schema.getQueryType().getFields()[rootCallName];
+  var rootCallDecl = getFieldDef(
+    options.schema,
+    options.schema.getQueryType(),
+    rootField
+  );
   var type = rootCallDecl.type;
 
   var requisiteFields = {};
@@ -164,7 +174,7 @@ function printQuery(query, options) {
 function printOperation(operation, options) {
   var selections = getSelections(operation);
   if (selections.length !== 1) {
-    throw new Error('expected only single top level field on operation');
+    throw new Error('Expected only single top level field on operation');
   }
   var rootField = selections[0];
 
@@ -173,7 +183,11 @@ function printOperation(operation, options) {
   }
 
   var className = 'Mutation';
-  var field = options.schema.getMutationType().getFields()[getName(rootField)];
+  var field = getFieldDef(
+    options.schema,
+    options.schema.getMutationType(),
+    rootField
+  );
   if (!field) {
     throw new Error(
       'Provided mutation ' + getName(rootField) + ' does not exist in schema.'
@@ -344,7 +358,7 @@ function printField(
   parentType
 ) {
   var fieldName = getName(field);
-  var fieldDecl = types.getNamedType(type).getFields()[fieldName];
+  var fieldDecl = getFieldDef(options.schema, type, field);
   var metadata = {
     parentType: parentType,
   };
@@ -382,6 +396,23 @@ function printField(
 
     if (!getArgNamed(fieldDecl, 'find')) {
       metadata.nonFindable = true;
+    }
+
+    if (hasArgument(field, 'first') && hasArgument(field, 'before')) {
+      throw new Error(util.format(
+        'Connections arguments `%s(before: <cursor>, first: <count>)` are ' +
+        'not supported. Use `(first: <count>)` or ' +
+        '`(after: <cursor>, first: <count>)`. ',
+        fieldName
+      ));
+    }
+    if (hasArgument(field, 'last') && hasArgument(field, 'after')) {
+      throw new Error(util.format(
+        'Connections arguments `%s(after: <cursor>, last: <count>)` are ' +
+        'not supported. Use `(last: <count>)` or ' +
+        '`(before: <cursor>, last: <count>)`. ',
+        fieldName
+      ));
     }
 
     var hasEdgesSelection = false;
@@ -547,16 +578,16 @@ function getScalarValue(node) {
 }
 
 function getTypeForMetadata(type) {
-  type = types.getNamedType(type);
+  var namedType = types.getNamedType(type);
   if (
-    type instanceof types.GraphQLEnumType ||
-    type instanceof types.GraphQLInputObjectType
+    namedType instanceof types.GraphQLEnumType ||
+    namedType instanceof types.GraphQLInputObjectType
   ) {
-    return type.name;
-  } else if (type instanceof types.GraphQLScalarType) {
+    return String(type);
+  } else if (namedType instanceof types.GraphQLScalarType) {
     return null;
   }
-  throw new Error('Unsupported call value type ' + type.name);
+  throw new Error('Unsupported call value type ' + namedType.name);
 }
 
 function isEnum(type) {
@@ -707,6 +738,33 @@ function getConnectionMetadata(schema, fieldDecl) {
   };
 }
 
+/**
+ * Returns the definition of the given `field` within the parent type,
+ * or introspection types for `__type`, `__schema`, and `__typename` fields.
+ *
+ * Note: this is adapted from `graphql`:
+ * https://github.com/graphql/graphql-js/blob/81a7d7add03adbb14dc852bbe45ab030c0601489/src/utilities/TypeInfo.js#L212-L237
+ */
+function getFieldDef(schema, parentType, field) {
+  var fieldName = getName(field);
+  if (fieldName === SchemaMetaFieldDef.name &&
+      schema.getQueryType() === parentType) {
+    return SchemaMetaFieldDef;
+  }
+  if (fieldName === TypeMetaFieldDef.name &&
+      schema.getQueryType() === parentType) {
+    return TypeMetaFieldDef;
+  }
+  if (fieldName === TypeNameMetaFieldDef.name &&
+      (parentType instanceof types.GraphQLObjectType ||
+       parentType instanceof types.GraphQLInterfaceType ||
+       parentType instanceof types.GraphQLUnionType)
+  ) {
+    return TypeNameMetaFieldDef;
+  }
+  return types.getNamedType(parentType).getFields()[fieldName];
+}
+
 function trimArray(arr) {
   var lastIndex = -1;
   for (var ii = arr.length - 1; ii >= 0; ii--) {
@@ -741,6 +799,15 @@ function getSelections(node) {
     return node.selectionSet.selections;
   }
   return [];
+}
+
+function hasArgument(field, argumentName) {
+  for (var ix = 0; ix < field.arguments.length; ix++) {
+    if (getName(field.arguments[ix]) === argumentName) {
+      return true;
+    }
+  }
+  return false;
 }
 
 module.exports = GraphQLPrinter;

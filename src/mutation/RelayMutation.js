@@ -341,7 +341,7 @@ class RelayMutation<Tp: {[key: string]: mixed}> {
       RelayDeprecated.getMutationInitialVariables(this) || {};
     var prepareVariables = this.prepareVariables;
 
-    return new RelayFragmentReference(
+    return RelayFragmentReference.createForContainer(
       () => buildMutationFragment(
         this.name,
         fragmentName,
@@ -377,7 +377,7 @@ function buildMutationFragment(
 ): GraphQL.Fragment {
   var fragment = buildRQL.Fragment(
     fragmentBuilder,
-    Object.keys(variables)
+    variables
   );
   invariant(
     fragment,

@@ -21,6 +21,7 @@ var GraphQLStoreChangeEmitter = require('GraphQLStoreChangeEmitter');
 var GraphQLStoreDataHandler = require('GraphQLStoreDataHandler');
 var GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 var React = require('React');
+var ReactDOM = require('ReactDOM');
 var RelayContainerComparators = require('RelayContainerComparators');
 var RelayContainerProxy = require('RelayContainerProxy');
 var RelayDeprecated = require('RelayDeprecated');
@@ -74,7 +75,7 @@ export type RootQueries = {
 };
 
 GraphQLStoreChangeEmitter.injectBatchingStrategy(
-  (React: $FlowIssue /* #7887700 */).unstable_batchedUpdates
+  ReactDOM.unstable_batchedUpdates
 );
 
 var containerContextTypes = {
@@ -291,7 +292,7 @@ function createContainerComponent(
         var mounted = this.mounted;
         if (mounted) {
           var updateProfiler = RelayProfiler.profile('RelayContainer.update');
-          (React: $FlowIssue /* #7887700 */).unstable_batchedUpdates(() => {
+          ReactDOM.unstable_batchedUpdates(() => {
             this.setState(partialState, () => {
               updateProfiler.stop();
               if (isComplete) {
@@ -916,7 +917,7 @@ function buildContainerFragment(
 ): GraphQL.Fragment {
   var fragment = buildRQL.Fragment(
     fragmentBuilder,
-    Object.keys(variables)
+    variables
   );
   invariant(
     fragment,
@@ -968,6 +969,8 @@ function create(
     adapter: ContainerConstructor.getFragmentNames,
   });
   ContainerConstructor.hasFragment = fragmentName => !!fragments[fragmentName];
+  ContainerConstructor.hasVariable = variableName =>
+    Object.prototype.hasOwnProperty.call(initialVariables, variableName);
 
   /**
    * Retrieves a reference to the fragment by name. An optional second argument
@@ -996,7 +999,7 @@ function create(
       fragmentName,
       fragmentName
     );
-    return new RelayFragmentReference(
+    return RelayFragmentReference.createForContainer(
       () => buildContainerFragment(
         containerName,
         fragmentName,
