@@ -75,7 +75,7 @@ export type RootQueries = {
 };
 
 GraphQLStoreChangeEmitter.injectBatchingStrategy(
-  ReactDOM.unstable_batchedUpdates
+  ReactDOM.batchedUpdates
 );
 
 var containerContextTypes = {
