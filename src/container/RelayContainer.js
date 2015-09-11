@@ -292,7 +292,7 @@ function createContainerComponent(
         var mounted = this.mounted;
         if (mounted) {
           var updateProfiler = RelayProfiler.profile('RelayContainer.update');
-          ReactDOM.unstable_batchedUpdates(() => {
+          ReactDOM.batchedUpdates(() => {
             this.setState(partialState, () => {
               updateProfiler.stop();
               if (isComplete) {
