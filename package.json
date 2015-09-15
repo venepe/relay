@@ -30,7 +30,7 @@
   "dependencies": {
     "babel-runtime": "5.8.20",
     "fbjs": "^0.2.1",
-    "react-static-container": "https://github.com/tmitchel2/react-static-container/tarball/master"
+    "react-static-container": "https://github.com/venepe/react-static-container/tarball/master"
   },
   "peerDependencies": {
     "react-native": "0.11.0"
