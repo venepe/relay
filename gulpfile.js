@@ -51,8 +51,8 @@ var babelOpts = {
   optional: ['runtime'],
   plugins: [babelPluginDEV, babelPluginModules],
   _moduleMap: objectAssign({}, require('fbjs/module-map'), {
-    'React': 'react',
-    'ReactDOM': 'react-dom',
+    'React': 'react-native',
+    'ReactDOM': 'ReactUpdates',
     'StaticContainer.react': 'react-static-container'
   })
 };
