@@ -53,6 +53,7 @@ const START_CURSOR = 'startCursor';
  */
 const RelayOSSConnectionInterface = {
   CLIENT_MUTATION_ID,
+  CLIENT_SUBSCRIPTION_ID,
   CURSOR,
   EDGES,
   END_CURSOR,

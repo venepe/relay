@@ -1041,7 +1041,7 @@ describe('writePayload()', () => {
           node: {
             id: nextNodeID,
             body: {
-              text: input.message.text,
+              text: messageText,
             },
           },
           source: {
@@ -1219,7 +1219,7 @@ describe('writePayload()', () => {
       expect(store.getField(nextNodeID, 'id')).toBe(nextNodeID);
       expect(store.getType(nextNodeID)).toBe('Comment');
       expect(store.getLinkedRecordID(nextNodeID, 'body')).toBe(bodyID);
-      expect(store.getField(bodyID, 'text')).toBe(input.message.text);
+      expect(store.getField(bodyID, 'text')).toBe(messageText);
       expect(store.getRangeMetadata(
         connectionID,
         [{name: 'first', value: '2'}]
@@ -1232,13 +1232,13 @@ describe('writePayload()', () => {
     it('non-optimistically prepends comments for subscriptions', () => {
       // create the subscription and payload
       var input = {
-        [RelayConnectionInterface.CLIENT_SUBSCRIPTION_ID]: '0',
         feedbackId: feedbackID,
+        [RelayConnectionInterface.CLIENT_SUBSCRIPTION_ID]: '0',
       };
 
-      var subscription = getNode(Relay.QL`
+      var mutation = getNode(Relay.QL`
         subscription {
-          commentCreateSubscribe(input:$input) {
+          commentCreate(input:$input) {
             feedback {
               id,
               topLevelComments {
