@@ -23,6 +23,7 @@ export type PageInfo = {
 };
 
 const CLIENT_MUTATION_ID = 'clientMutationId';
+const CLIENT_SUBSCRIPTION_ID = 'clientSubscriptionId';
 const CONNECTION_CALLS = {
   'after': true,
   'before': true,
