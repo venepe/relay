@@ -20,6 +20,7 @@ import type RelaySubscriptionRequest from 'RelaySubscriptionRequest';
 import type {Subscription} from 'RelayTypes';
 
 const invariant = require('invariant');
+const warning = require('warning');
 
 type NetworkLayer = {
   sendMutation: (mutationRequest: RelayMutationRequest) => ?Promise;

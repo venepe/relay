@@ -1,5 +1,9 @@
 /**
+<<<<<<< 34de857fbaf70d162091bafb42514706dc168568
  * Copyright (c) 2013-present, Facebook, Inc.
+=======
+ * Copyright 2013-2015, Facebook, Inc.
+>>>>>>> wip
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
