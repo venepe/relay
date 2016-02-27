@@ -15,8 +15,9 @@
 
 import type {ConcreteFragment} from 'ConcreteQuery';
 import type {RelayConcreteNode} from 'RelayQL';
+const RelayFragmentPointer = require('RelayFragmentPointer');
 const RelayFragmentReference = require('RelayFragmentReference');
-import type RelayMetaRoute from 'RelayMetaRoute';
+const RelayMetaRoute = require('RelayMetaRoute');
 const RelayQuery = require('RelayQuery');
 const RelayStore = require('RelayStore');
 import type {
