@@ -15,11 +15,13 @@
 
 const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
 import type RelayMutation from 'RelayMutation';
+import type RelaySubscription from 'RelaySubscription';
 import type RelayMutationTransaction from 'RelayMutationTransaction';
 import type RelayQuery from 'RelayQuery';
 const RelayQueryResultObservable = require('RelayQueryResultObservable');
 const RelayStoreData = require('RelayStoreData');
 
+const createSubscription = require('createSubscription');
 const forEachRootCallArg = require('forEachRootCallArg');
 const readRelayQueryData = require('readRelayQueryData');
 const relayUnstableBatchedUpdates = require('relayUnstableBatchedUpdates');
@@ -29,9 +31,11 @@ import type {
   Abortable,
   Observable,
   RelayMutationTransactionCommitCallbacks,
+  SubscriptionCallbacks,
   ReadyStateChangeCallback,
   StoreReaderData,
   StoreReaderOptions,
+  Subscription,
 } from 'RelayTypes';
 
 import type {
@@ -255,6 +259,13 @@ class RelayContext {
       ' `Relay.Store.commitUpdate` or `Relay.Store.applyUpdate` instead.'
     );
     this.commitUpdate(mutation, callbacks);
+  }
+
+  subscribe(
+    subscription: RelaySubscription,
+    callbacks?: SubscriptionCallbacks
+  ): Subscription {
+    return createSubscription(storeData, subscription, callbacks);
   }
 }
 
