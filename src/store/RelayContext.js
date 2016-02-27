@@ -265,7 +265,7 @@ class RelayContext {
     subscription: RelaySubscription,
     callbacks?: SubscriptionCallbacks
   ): Subscription {
-    return createSubscription(storeData, subscription, callbacks);
+    return createSubscription(this._storeData, subscription, callbacks);
   }
 }
 
