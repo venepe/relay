@@ -45,9 +45,11 @@ function createSubscription(
   );
 
   const request = new RelaySubscriptionRequest(
-    observer.getQuery(),
-    observer.asObserver()
+    observer.getQuery()
   );
+
+  //hack to match the observer and subscribe
+  request.subscribe(observer.asObserver());
 
   // the network layer returns a disposable which will clean up / close any
   // resources associated with the subscription
